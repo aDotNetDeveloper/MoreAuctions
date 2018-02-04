@@ -1,0 +1,61 @@
+﻿@using MoreAuctions.Models
+@using Microsoft.Extensions.Options;
+@inject IOptions<BusinessRules> Settings
+
+@model Auction
+@{
+    var auctionItem = new AuctionItem();
+    var maxItems = Model.Items?.Any() == true && Model.Items.Count() >= Settings.Value.MaxAuctionItems;
+}
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => auctionItem.Title)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => auctionItem.Description)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => auctionItem.StartPrice)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Items?.Any() == true)
+            {
+
+                @foreach (var item in Model.Items)
+                {
+                    <tr class=@(item.StartPrice > Settings.Value.PriceWarning ? "max" : "")>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Title)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Description)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.StartPrice)
+                        </td>
+                        <td>
+                            <a asp-controller="AuctionItems" asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+                            <a asp-controller="AuctionItems" asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+    <p>
+        @if (maxItems)
+        {
+            <span class="warning">Maximum Auction items of @Settings.Value.MaxAuctionItems reached</span>
+        }
+        else
+        {
+            <a asp-controller="AuctionItems" asp-action="Create" asp-route-id="@Model.ID">Create New Item for @Model.Description</a>
+        }
+    </p>
+</div>
